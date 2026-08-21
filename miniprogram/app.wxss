@@ -1,0 +1,147 @@
+page {
+  --ink: #17202c;
+  --muted: #667085;
+  --line: #e3e8ef;
+  --surface: #ffffff;
+  --canvas: #f4f6f8;
+  --red: #d94343;
+  --blue: #1769aa;
+  --green: #17845f;
+  --amber: #b5650b;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+button,
+input {
+  box-sizing: border-box;
+}
+
+button {
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+button::after {
+  border: 0;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 48rpx;
+}
+
+.section {
+  margin-top: 24rpx;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 650;
+}
+
+.section-meta,
+.muted {
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+.card {
+  background: var(--surface);
+  border: 1rpx solid var(--line);
+  border-radius: 12rpx;
+}
+
+.balls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.ball {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 650;
+  flex: 0 0 60rpx;
+}
+
+.ball-front {
+  background: var(--red);
+}
+
+.ball-back {
+  background: var(--blue);
+}
+
+.button-primary {
+  background: #1769aa;
+  color: #ffffff;
+  min-height: 88rpx;
+  line-height: 88rpx;
+}
+
+.button-secondary {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1rpx solid var(--line);
+  min-height: 80rpx;
+  line-height: 80rpx;
+}
+
+.empty {
+  padding: 80rpx 24rpx;
+  color: var(--muted);
+  text-align: center;
+}
+
+.skeleton {
+  height: 240rpx;
+  background: #e9edf2;
+  border-radius: 12rpx;
+}
+
+.notice {
+  padding: 20rpx 22rpx;
+  color: #5e6673;
+  background: #f8fafc;
+  border: 1rpx solid var(--line);
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.65;
+}
+
+.info-button {
+  display: flex;
+  width: 34rpx;
+  height: 34rpx;
+  flex: 0 0 34rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1rpx solid #9aa4b2;
+  border-radius: 50%;
+  color: #667085;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 21rpx;
+  font-weight: 650;
+  line-height: 1;
+}

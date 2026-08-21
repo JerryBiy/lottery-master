@@ -1,0 +1,77 @@
+.history-page {
+  padding-top: 20rpx;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  min-height: 84rpx;
+  padding: 0 22rpx;
+}
+
+.search-icon {
+  margin-right: 18rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+.search input {
+  flex: 1;
+}
+
+.clear {
+  color: var(--blue);
+  font-size: 24rpx;
+}
+
+.result-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 4rpx 14rpx;
+  color: var(--muted);
+  font-size: 23rpx;
+}
+
+.draw-list {
+  padding: 0 24rpx;
+}
+
+.draw-row {
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.draw-row:last-child {
+  border-bottom: 0;
+}
+
+.draw-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.issue {
+  font-weight: 650;
+}
+
+.date {
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.draw-stats {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 18rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.load-more {
+  padding: 28rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  text-align: center;
+}

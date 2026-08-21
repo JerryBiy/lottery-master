@@ -1,0 +1,235 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="skeleton"></view>
+
+  <block wx:elif="{{overview}}">
+    <view class="lab-header">
+      <view>
+        <text class="lab-title">私人模型实验室</text>
+        <text class="lab-subtitle">完整控制模型、特征与策略 · 第 {{overview.latest_issue}} 期</text>
+      </view>
+      <view class="info-button" bindtap="showLabInfo">i</view>
+    </view>
+
+    <view class="notice">{{overview.statement}}</view>
+
+    <view class="lab-view-tabs">
+      <view class="{{labView === 'setup' ? 'active' : ''}}" data-view="setup" bindtap="selectLabView">配置方案</view>
+      <view class="{{labView === 'results' ? 'active' : ''}}" data-view="results" bindtap="selectLabView">结果与评估</view>
+      <view class="{{labView === 'history' ? 'active' : ''}}" data-view="history" bindtap="selectLabView">生成历史</view>
+    </view>
+
+    <view wx:if="{{labView === 'setup'}}" class="section generator card">
+      <view class="section-head">
+        <view>
+          <view class="title-line">
+            <text class="section-title">我的定制方案</text>
+            <text class="pro-badge">高阶定制</text>
+          </view>
+          <text class="section-subtitle">四步完成设置，每一项都会参与实际训练</text>
+        </view>
+      </view>
+
+      <view class="control-block">
+        <view class="control-head">
+          <text class="control-step">01</text>
+          <view><text class="control-title">选择基础模型</text><text class="control-hint">不确定时保持系统推荐</text></view>
+        </view>
+        <view class="model-grid">
+          <view wx:for="{{beginnerModels}}" wx:key="id" class="model-option {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="selectQuickModel">
+            <text class="model-label">{{item.label}}</text>
+            <text class="model-description">{{item.description}}</text>
+            <text class="model-check">{{item.selected ? '已选' : ''}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="control-block">
+        <view class="control-head">
+          <text class="control-step">02</text>
+          <view><text class="control-title">自定义学习期数</text><text class="control-hint">可输入50至{{overview.total_draws}}期，或使用全部历史</text></view>
+        </view>
+        <view class="window-editor">
+          <view class="window-step" bindtap="decreaseWindow">−</view>
+          <view class="window-input-wrap {{useAllHistory ? 'disabled' : ''}}">
+            <input type="number" value="{{customWindow}}" disabled="{{useAllHistory}}" bindinput="editCustomWindow" bindblur="commitCustomWindow"/>
+            <text>期</text>
+          </view>
+          <view class="window-step" bindtap="increaseWindow">＋</view>
+          <view class="all-history-toggle {{useAllHistory ? 'selected' : ''}}" bindtap="toggleAllHistory">{{useAllHistory ? '✓ 全部历史' : '全部历史'}}</view>
+        </view>
+      </view>
+
+      <view class="control-block">
+        <view class="control-head">
+          <text class="control-step">03</text>
+          <view><text class="control-title">选择学习重点</text><text class="control-hint">可以多选，至少保留一项</text></view>
+        </view>
+        <view class="feature-grid">
+          <view wx:for="{{overview.feature_groups}}" wx:key="id" class="feature-option {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="toggleFeature">
+            <text class="feature-mark">{{item.selected ? '✓' : ''}}</text>
+            <view><text>{{item.label}}</text><text>{{item.items}}</text></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="control-block">
+        <view class="control-head">
+          <text class="control-step">04</text>
+          <view><text class="control-title">选择生成目标</text><text class="control-hint">决定如何从候选组合中筛选</text></view>
+        </view>
+        <view class="objective-grid">
+          <view wx:for="{{overview.objectives}}" wx:key="id" class="objective-option {{item.selected ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="selectObjective">
+            <text>{{item.label}}</text>
+            <text>{{item.description}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="ticket-control">
+        <view><text class="control-title">生成注数</text><text class="control-hint">结果将自动保存，开奖后复盘</text></view>
+        <view class="stepper">
+          <view bindtap="decreaseTickets">−</view>
+          <text>{{ticketCount}}</text>
+          <view bindtap="increaseTickets">＋</view>
+        </view>
+      </view>
+
+      <view class="advanced-toggle" bindtap="toggleAdvanced">
+        <view><text>高级选项</text><text>模型复杂度、筛选规模与权重</text></view>
+        <text>{{advancedOpen ? '收起 ↑' : '展开 ↓'}}</text>
+      </view>
+
+      <view wx:if="{{advancedOpen}}" class="advanced-panel">
+        <picker mode="selector" range="{{availableModels}}" range-key="label" value="{{modelIndex}}" bindchange="selectModel">
+          <view class="setting-row"><text>完整模型列表</text><text>{{availableModels[modelIndex].label}} 〉</text></view>
+        </picker>
+        <picker mode="selector" range="{{overview.presets}}" range-key="label" value="{{presetIndex}}" bindchange="selectPreset">
+          <view class="setting-row"><text>模型复杂度</text><text>{{overview.presets[presetIndex].label}} 〉</text></view>
+        </picker>
+        <picker mode="selector" range="{{candidateOptions}}" value="{{candidateIndex}}" bindchange="selectCandidates">
+          <view class="setting-row"><text>候选组合规模</text><text>{{candidateOptions[candidateIndex]}} 组 〉</text></view>
+        </picker>
+        <view class="slider-setting">
+          <view><text>历史结构约束</text><text>{{structureWeight}}%</text></view>
+          <slider min="0" max="80" value="{{structureWeight}}" activeColor="#1769aa" block-size="18" bindchange="changeStructureWeight"/>
+          <text>数值越高，和值、跨度和三区越接近历史常见结构</text>
+        </view>
+        <view class="slider-setting">
+          <view><text>探索范围</text><text>{{exploration}}%</text></view>
+          <slider min="50" max="150" value="{{exploration}}" activeColor="#b56b18" block-size="18" bindchange="changeExploration"/>
+          <text>数值越高，低评分号码也更可能进入候选组合</text>
+        </view>
+        <view class="slider-setting">
+          <view><text>多注差异</text><text>{{diversityWeight}}%</text></view>
+          <slider min="0" max="100" value="{{diversityWeight}}" activeColor="#168267" block-size="18" bindchange="changeDiversityWeight"/>
+          <text>数值越高，多注之间重复的号码越少</text>
+        </view>
+        <picker mode="selector" range="{{testDrawOptions}}" value="{{testDrawIndex}}" bindchange="selectTestDraws">
+          <view class="setting-row no-border"><text>能力评估期数</text><text>{{testDrawOptions[testDrawIndex]}} 期 〉</text></view>
+        </picker>
+      </view>
+
+      <view class="config-summary">{{configSummary}}</view>
+      <view class="primary-action {{generateJob && (generateJob.status === 'queued' || generateJob.status === 'running') ? 'disabled' : ''}}" bindtap="startGenerate">
+        {{generateJob && (generateJob.status === 'queued' || generateJob.status === 'running') ? '正在训练与筛选' : '按我的方案生成'}}
+      </view>
+      <view wx:if="{{generateJob && generateJob.status !== 'completed'}}" class="job-progress">
+        <view class="progress-track"><view class="progress-fill" style="width: {{generateJob.progress}}%;"></view></view>
+        <text>{{generateJob.message}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{labView === 'results' && generateJob && (generateJob.status === 'queued' || generateJob.status === 'running')}}" class="result-state card">
+      <view class="result-state-head"><text>正在生成模型结果</text><text>{{generateJob.progress}}%</text></view>
+      <view class="progress-track"><view class="progress-fill" style="width: {{generateJob.progress}}%;"></view></view>
+      <text class="section-subtitle">{{generateJob.message}}</text>
+    </view>
+
+    <view wx:if="{{labView === 'results' && !generateResult && (!generateJob || (generateJob.status !== 'queued' && generateJob.status !== 'running'))}}" class="result-state empty-result">
+      <text>还没有模型生成结果</text>
+      <text class="section-subtitle">先在“配置方案”中完成设置并生成，结果和评分会显示在这里。</text>
+      <view class="text-action" data-view="setup" bindtap="selectLabView">返回配置方案</view>
+    </view>
+
+    <view wx:if="{{labView === 'results' && generateResult}}" class="section">
+      <view class="section-head">
+        <view><text class="section-title">本次实验结果</text><text class="section-subtitle">{{generateResult.model_label}} · 训练至 {{generateResult.trained_until_issue}}</text></view>
+      </view>
+      <view class="ticket-results card">
+        <view wx:for="{{generateResult.tickets}}" wx:key="front" class="result-ticket">
+          <text class="ticket-rank">{{index + 1}}</text>
+          <view class="balls">
+            <view wx:for="{{item.front_numbers}}" wx:for-item="number" wx:key="*this" class="ball ball-front">{{number}}</view>
+            <view wx:for="{{item.back_numbers}}" wx:for-item="number" wx:key="*this" class="ball ball-back">{{number}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="score-panel card">
+        <view class="score-tabs">
+          <view class="{{scoreZone === 'front' ? 'active' : ''}}" data-zone="front" bindtap="selectScoreZone">前区 TOP 10</view>
+          <view class="{{scoreZone === 'back' ? 'active' : ''}}" data-zone="back" bindtap="selectScoreZone">后区 TOP 6</view>
+        </view>
+        <view wx:for="{{scoreZone === 'front' ? generateResult.front_scores : generateResult.back_scores}}" wx:key="number" class="score-row">
+          <text class="score-number {{scoreZone}}">{{item.number_text}}</text>
+          <view class="score-track"><view class="score-fill {{scoreZone}}" style="width: {{item.relative_score}}%;"></view></view>
+          <text>{{item.relative_score}}</text>
+        </view>
+        <text class="score-note">相对评分以该区域最高分为100，不是中奖概率。</text>
+      </view>
+      <view class="diagnostics card">
+        <view class="diagnostics-head"><text>本次训练摘要</text><text>拟合指标不等于未来表现</text></view>
+        <view class="diagnostics-grid">
+          <view wx:for="{{generateResult.diagnosticsView}}" wx:key="label"><text>{{item.label}}</text><text class="metric-value">{{item.value}}</text></view>
+        </view>
+      </view>
+      <view class="favorite-custom {{favoriteSaved ? 'saved' : ''}}" bindtap="saveCustomFavorite">{{favoriteSaved ? '本组已收藏' : '收藏这组定制结果'}}</view>
+    </view>
+
+    <view wx:if="{{labView === 'results'}}" class="section backtest card">
+      <view class="section-head">
+        <view><text class="section-title">模型能力评估</text><text class="section-subtitle">用过去未参与学习的开奖数据检验当前模型</text></view>
+        <view class="secondary-action" bindtap="startBacktest">{{backtestJob && (backtestJob.status === 'queued' || backtestJob.status === 'running') ? '评估中' : '开始评估'}}</view>
+      </view>
+      <view wx:if="{{backtestJob && backtestJob.status !== 'completed'}}" class="job-progress">
+        <view class="progress-track"><view class="progress-fill green" style="width: {{backtestJob.progress}}%;"></view></view>
+        <text>{{backtestJob.message}}</text>
+      </view>
+      <view wx:if="{{backtestResult}}" class="comparison">
+        <view class="comparison-head"><text>{{backtestResult.test_draws}}期开奖样本</text><text>模型 / 随机</text></view>
+        <view class="comparison-row"><text>前区平均命中</text><text class="comparison-value">{{backtestResult.modelFrontText}} / {{backtestResult.randomFrontText}}</text><text class="{{backtestResult.frontLift > 0 ? 'positive' : 'negative'}}">{{backtestResult.frontLiftText}}</text></view>
+        <view class="comparison-row"><text>后区平均命中</text><text class="comparison-value">{{backtestResult.modelBackText}} / {{backtestResult.randomBackText}}</text><text class="{{backtestResult.backLift > 0 ? 'positive' : 'negative'}}">{{backtestResult.backLiftText}}</text></view>
+        <view class="comparison-row"><text>中奖率差值</text><text class="comparison-value">{{backtestResult.prizeRateText}}</text><text class="{{backtestResult.prizeLift > 0 ? 'positive' : 'negative'}}">{{backtestResult.prizeLiftText}}</text></view>
+      </view>
+    </view>
+
+    <view wx:if="{{labView === 'history'}}" class="section">
+      <view class="section-head"><view><text class="section-title">模型生成历史</text><text class="section-subtitle">每次成功生成都会保存模型配置和结果</text></view><text class="section-meta">{{generationHistory.length}} 条</text></view>
+      <view class="history-list">
+        <view wx:for="{{visibleGenerationHistory}}" wx:key="id" class="history-item card">
+          <view class="history-summary" data-id="{{item.id}}" bindtap="toggleGenerationHistory">
+            <view>
+              <view class="history-title-line"><text class="history-source">{{item.sourceLabel}}</text><text>{{item.model_label}}</text></view>
+              <text class="history-meta">{{item.createdText}} · {{item.windowLabel}} · {{item.tickets.length}}注</text>
+            </view>
+            <view class="history-status"><text>{{item.trainingModeLabel}}</text><text>{{item.expanded ? '⌃' : '⌄'}}</text></view>
+          </view>
+          <view wx:if="{{item.expanded}}" class="history-detail">
+            <view class="history-config">
+              <text>训练至 {{item.trained_until_issue}}</text>
+              <text>{{item.featureCount}}类特征 · {{item.presetLabel}} · {{item.objectiveLabel}} · {{item.elapsedText}}</text>
+            </view>
+            <view wx:for="{{item.tickets}}" wx:key="front" wx:for-item="ticket" class="history-ticket">
+              <text>{{index + 1}}</text>
+              <view class="balls">
+                <view wx:for="{{ticket.frontNumbers}}" wx:key="*this" wx:for-item="number" class="ball ball-front">{{number}}</view>
+                <view wx:for="{{ticket.backNumbers}}" wx:key="*this" wx:for-item="number" class="ball ball-back">{{number}}</view>
+              </view>
+            </view>
+            <view class="history-delete" data-id="{{item.id}}" catchtap="deleteGenerationHistory">删除这条历史</view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{visibleGenerationHistory.length < generationHistory.length}}" class="history-more" bindtap="showMoreHistory">显示更多历史</view>
+    </view>
+  </block>
+</view>

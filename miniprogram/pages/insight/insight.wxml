@@ -1,0 +1,321 @@
+<view class="page">
+  <view class="window-scroll">
+    <view class="window-row">
+      <view
+        wx:for="{{windows}}"
+        wx:key="*this"
+        class="window-chip {{window === item ? 'active' : ''}}"
+        hover-class="window-chip-pressed"
+        data-window="{{item}}"
+        bindtap="selectWindow"
+      >近 {{item}} 期</view>
+    </view>
+  </view>
+
+  <scroll-view scroll-x enhanced="{{true}}" show-scrollbar="{{false}}" class="topic-scroll">
+    <view class="topic-tabs">
+      <view class="{{viewMode === 'heat' ? 'active' : ''}}" data-view="heat" bindtap="selectView">冷热频次</view>
+      <view class="{{viewMode === 'omission' ? 'active' : ''}}" data-view="omission" bindtap="selectView">遗漏走势</view>
+      <view class="{{viewMode === 'sum' ? 'active' : ''}}" data-view="sum" bindtap="selectView">和值跨度</view>
+      <view class="{{viewMode === 'shape' ? 'active' : ''}}" data-view="shape" bindtap="selectView">形态结构</view>
+      <view class="{{viewMode === 'position' ? 'active' : ''}}" data-view="position" bindtap="selectView">位置尾数</view>
+      <view class="{{viewMode === 'pairs' ? 'active' : ''}}" data-view="pairs" bindtap="selectView">号码搭档</view>
+    </view>
+  </scroll-view>
+
+  <view class="notice">冷热、遗漏和频次只描述历史结果，不表示某个号码下一期更容易出现。</view>
+
+  <view wx:if="{{viewMode === 'heat'}}" class="section">
+    <view class="section-head">
+      <view class="title-with-info">
+        <text class="section-title">号码频次与遗漏</text>
+        <view class="info-button" data-info="frequency" bindtap="showInfo">i</view>
+      </view>
+      <view class="pool-switch">
+        <text class="{{pool === 'front' ? 'active' : ''}}" data-pool="front" bindtap="selectPool">前区</text>
+        <text class="{{pool === 'back' ? 'active' : ''}}" data-pool="back" bindtap="selectPool">后区</text>
+      </view>
+    </view>
+
+    <view class="sort-row">
+      <text class="{{sort === 'hot' ? 'active' : ''}}" data-sort="hot" bindtap="selectSort">热到冷</text>
+      <text class="{{sort === 'cold' ? 'active' : ''}}" data-sort="cold" bindtap="selectSort">冷到热</text>
+      <text class="{{sort === 'omission' ? 'active' : ''}}" data-sort="omission" bindtap="selectSort">遗漏高</text>
+      <text class="{{sort === 'number' ? 'active' : ''}}" data-sort="number" bindtap="selectSort">按号码</text>
+    </view>
+
+    <view class="number-table card">
+      <view class="table-head">
+        <text>号码</text><text>出现</text><text>遗漏</text><text>状态</text>
+      </view>
+      <block wx:for="{{numbers}}" wx:key="number">
+        <view class="number-row" data-number="{{item.number}}" bindtap="toggleNumberDetail">
+          <view class="number-badge {{pool}}"><text>{{item.number_text}}</text></view>
+          <text>{{item.count}} 次</text>
+          <text>{{item.omission}} 期</text>
+          <text class="temperature {{item.temperature}}">{{item.temperature === 'hot' ? '偏热' : item.temperature === 'cold' ? '偏冷' : '常态'}}</text>
+        </view>
+        <view wx:if="{{selectedNumber === item.number}}" class="number-detail">
+          <view><text>出现率</text><text class="strong-text">{{item.rateText}}</text></view>
+          <view><text>平均间隔</text><text class="strong-text">{{item.average_gap === null ? '-' : item.average_gap + '期'}}</text></view>
+          <view><text>最大遗漏</text><text class="strong-text">{{item.max_omission}}期</text></view>
+          <view><text>连续出现</text><text class="strong-text">{{item.current_streak}}期</text></view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <block wx:if="{{distributions}}">
+    <view wx:if="{{viewMode === 'omission'}}" class="section">
+      <view class="section-head compact">
+        <view><text class="section-title">逐期号码与遗漏</text><text class="section-subtitle">横向滑动查看全部号码</text></view>
+        <view class="info-button" data-info="matrix" bindtap="showInfo">i</view>
+      </view>
+      <view class="matrix-card card">
+        <view class="pool-switch matrix-switch">
+          <text class="{{matrixPool === 'front' ? 'active' : ''}}" data-pool="front" bindtap="selectMatrixPool">前区</text>
+          <text class="{{matrixPool === 'back' ? 'active' : ''}}" data-pool="back" bindtap="selectMatrixPool">后区</text>
+        </view>
+        <scroll-view scroll-x enhanced="{{true}}" class="matrix-scroll">
+          <view class="matrix-content" style="width: {{matrixWidth}}rpx;">
+            <view class="matrix-line matrix-head">
+              <text class="matrix-issue">期号</text>
+              <text wx:for="{{matrixHeaders}}" wx:key="*this" class="matrix-cell">{{item}}</text>
+            </view>
+            <view wx:for="{{matrixRows}}" wx:key="issue" wx:for-item="row" class="matrix-line">
+              <text class="matrix-issue">{{row.issue}}</text>
+              <text wx:for="{{row.cells}}" wx:key="number" wx:for-item="cell" class="matrix-cell {{cell.hit ? 'hit ' + matrixPool : ''}}">{{cell.hit ? cell.number_text : cell.omission}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'sum'}}" class="section summary-grid">
+      <view class="summary-card card">
+        <view class="info-button" data-info="sum" bindtap="showInfo">i</view>
+        <text>前区平均和值</text>
+        <text class="summary-value {{distributions.front_sum.level}}">{{distributions.front_sum.average}}</text>
+        <text class="level-label {{distributions.front_sum.level}}">{{distributions.front_sum.level_label}}</text>
+        <text class="summary-note">历史均值 {{distributions.front_sum.benchmark}} · 范围 {{distributions.front_sum.minimum}}-{{distributions.front_sum.maximum}}</text>
+      </view>
+      <view class="summary-card card">
+        <view class="info-button" data-info="backSum" bindtap="showInfo">i</view>
+        <text>后区平均和值</text>
+        <text class="summary-value {{distributions.back_sum.level}}">{{distributions.back_sum.average}}</text>
+        <text class="level-label {{distributions.back_sum.level}}">{{distributions.back_sum.level_label}}</text>
+        <text class="summary-note">历史均值 {{distributions.back_sum.benchmark}} · 范围 {{distributions.back_sum.minimum}}-{{distributions.back_sum.maximum}}</text>
+      </view>
+      <view class="summary-card card wide">
+        <view class="info-button" data-info="span" bindtap="showInfo">i</view>
+        <text>平均跨度</text>
+        <text class="summary-value">{{distributions.front_span.average}}</text>
+        <text class="summary-note">中位数 {{distributions.front_span.median}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'sum'}}" class="section">
+      <view class="section-head compact">
+        <view>
+          <text class="section-title">近20期走势</text>
+          <text class="section-subtitle">点击柱子查看对应期号</text>
+        </view>
+        <view class="info-button" data-info="trend" bindtap="showInfo">i</view>
+      </view>
+      <view class="chart-card card">
+        <view class="chart-switch">
+          <view class="{{trendMetric === 'sum' ? 'active' : ''}}" data-metric="sum" bindtap="selectTrendMetric">前区和值</view>
+          <view class="{{trendMetric === 'back_sum' ? 'active' : ''}}" data-metric="back_sum" bindtap="selectTrendMetric">后区和值</view>
+          <view class="{{trendMetric === 'span' ? 'active' : ''}}" data-metric="span" bindtap="selectTrendMetric">跨度</view>
+        </view>
+        <view wx:if="{{selectedTrend}}" class="chart-reading">
+          <view>
+            <text class="reading-value">{{selectedTrend.value}}</text>
+            <text class="reading-label">{{trendLabel}}</text>
+          </view>
+          <text class="reading-issue">第 {{selectedTrend.issue}} 期</text>
+        </view>
+        <view class="trend-chart {{trendMetric}}">
+          <view
+            wx:for="{{trendSeries}}"
+            wx:key="issue"
+            class="trend-column {{selectedTrend.issue === item.issue ? 'selected' : ''}}"
+            data-index="{{index}}"
+            bindtap="selectTrendPoint"
+          >
+            <view class="trend-bar" style="height: {{item.height}}%;"></view>
+          </view>
+        </view>
+        <view class="trend-axis">
+          <text>{{trendFirstIssue}}</text>
+          <text>{{trendLastIssue}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'sum'}}" class="section">
+      <view class="section-head compact">
+        <view>
+          <text class="section-title">和值区间分布</text>
+          <text class="section-subtitle">点击区间查看占比</text>
+        </view>
+        <view class="info-button" data-info="histogram" bindtap="showInfo">i</view>
+      </view>
+      <view class="chart-card card">
+        <view class="pool-switch histogram-switch">
+          <text class="{{histogramPool === 'front' ? 'active' : ''}}" data-pool="front" bindtap="selectHistogramPool">前区</text>
+          <text class="{{histogramPool === 'back' ? 'active' : ''}}" data-pool="back" bindtap="selectHistogramPool">后区</text>
+        </view>
+        <view wx:if="{{selectedHistogram}}" class="histogram-reading">
+          <text class="strong-text">{{selectedHistogram.label}}</text>
+          <text>{{selectedHistogram.count}} 期 · 占 {{selectedHistogram.rate_text}}</text>
+        </view>
+        <view
+          wx:for="{{histogramRows}}"
+          wx:key="label"
+          class="histogram-row {{selectedHistogram && selectedHistogram.label === item.label ? 'selected' : ''}}"
+          data-index="{{index}}"
+          bindtap="selectHistogram"
+        >
+          <text>{{item.label}}</text>
+          <view class="histogram-track">
+            <view class="histogram-fill {{histogramPool}}" style="width: {{item.percent}}%;"></view>
+          </view>
+          <text>{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'shape'}}" class="section">
+      <view class="section-head compact">
+        <view>
+          <text class="section-title">结构特征</text>
+          <text class="section-subtitle">最近 {{window}} 期</text>
+        </view>
+        <view class="info-button" data-info="patterns" bindtap="showInfo">i</view>
+      </view>
+      <view class="pattern-grid">
+        <view wx:for="{{distributions.pattern_metrics}}" wx:key="key" class="pattern-card card">
+          <text>{{item.label}}</text>
+          <text class="strong-text">{{item.display}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'shape'}}" class="section">
+      <view class="section-head compact">
+        <text class="section-title">奇偶分布</text>
+        <view class="info-button" data-info="odd" bindtap="showInfo">i</view>
+      </view>
+      <view class="bar-chart card">
+        <view wx:for="{{distributions.odd_distribution}}" wx:key="label" class="bar-row">
+          <text class="bar-label">{{item.label}}</text>
+          <view class="bar-track"><view class="bar-fill" style="width: {{item.percent}}%;"></view></view>
+          <text class="bar-value">{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'shape'}}" class="section">
+      <view class="section-head compact">
+        <text class="section-title">三区结构 TOP 8</text>
+        <view class="info-button" data-info="zone" bindtap="showInfo">i</view>
+      </view>
+      <view class="bar-chart card">
+        <view wx:for="{{distributions.zone_distribution}}" wx:key="label" class="bar-row">
+          <text class="bar-label">{{item.label}}</text>
+          <view class="bar-track"><view class="bar-fill zone" style="width: {{item.percent}}%;"></view></view>
+          <text class="bar-value">{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'shape'}}" class="section">
+      <view class="section-head compact">
+        <view><text class="section-title">比例结构</text><text class="section-subtitle">{{ratioLabel}}</text></view>
+        <view class="info-button" data-info="ratios" bindtap="showInfo">i</view>
+      </view>
+      <view class="chart-card card">
+        <scroll-view scroll-x class="metric-scroll">
+          <view class="metric-switch">
+            <text class="{{ratioMetric === 'big_small' ? 'active' : ''}}" data-metric="big_small" bindtap="selectRatioMetric">前区大小</text>
+            <text class="{{ratioMetric === 'prime_composite' ? 'active' : ''}}" data-metric="prime_composite" bindtap="selectRatioMetric">前区质合</text>
+            <text class="{{ratioMetric === 'route_012' ? 'active' : ''}}" data-metric="route_012" bindtap="selectRatioMetric">012路</text>
+            <text class="{{ratioMetric === 'back_odd_even' ? 'active' : ''}}" data-metric="back_odd_even" bindtap="selectRatioMetric">后区奇偶</text>
+            <text class="{{ratioMetric === 'back_big_small' ? 'active' : ''}}" data-metric="back_big_small" bindtap="selectRatioMetric">后区大小</text>
+          </view>
+        </scroll-view>
+        <view wx:for="{{ratioRows}}" wx:key="label" class="bar-row">
+          <text class="bar-label">{{item.label}}</text>
+          <view class="bar-track"><view class="bar-fill ratio" style="width: {{item.percent}}%;"></view></view>
+          <text class="bar-value">{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'position'}}" class="section">
+      <view class="section-head compact">
+        <view><text class="section-title">尾数分布</text><text class="section-subtitle">0尾至9尾出现次数</text></view>
+        <view class="info-button" data-info="tails" bindtap="showInfo">i</view>
+      </view>
+      <view class="chart-card card">
+        <view class="pool-switch histogram-switch">
+          <text class="{{tailPool === 'front' ? 'active' : ''}}" data-pool="front" bindtap="selectTailPool">前区</text>
+          <text class="{{tailPool === 'back' ? 'active' : ''}}" data-pool="back" bindtap="selectTailPool">后区</text>
+        </view>
+        <view wx:for="{{tailRows}}" wx:key="tail" class="histogram-row">
+          <text>{{item.label}}</text>
+          <view class="histogram-track"><view class="histogram-fill {{tailPool}}" style="width: {{item.percent}}%;"></view></view>
+          <text>{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'position'}}" class="section">
+      <view class="section-head compact">
+        <view><text class="section-title">位置与相邻间距</text><text class="section-subtitle">前区从小到大排列</text></view>
+        <view class="info-button" data-info="positions" bindtap="showInfo">i</view>
+      </view>
+      <view class="dual-table">
+        <view class="compact-table card">
+          <text class="compact-title">位置均值</text>
+          <view wx:for="{{distributions.position_statistics}}" wx:key="position" class="compact-row">
+            <text>{{item.label}}</text><text class="strong-text">{{item.average}}</text><text>{{item.minimum}}-{{item.maximum}}</text>
+          </view>
+        </view>
+        <view class="compact-table card">
+          <text class="compact-title">相邻间距</text>
+          <view wx:for="{{distributions.gap_statistics}}" wx:key="position" class="compact-row">
+            <text>{{item.label}}</text><text class="strong-text">{{item.average}}</text><text>最大{{item.maximum}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'pairs'}}" class="section">
+      <view class="section-head compact">
+        <view><text class="section-title">高频号码对</text><text class="section-subtitle">同期开奖共同出现次数 TOP 10</text></view>
+        <view class="info-button" data-info="pairs" bindtap="showInfo">i</view>
+      </view>
+      <view class="pair-grid">
+        <view wx:for="{{distributions.top_pairs}}" wx:key="key" class="pair-item card">
+          <view><text>{{item.first_text}}</text><text>{{item.second_text}}</text></view>
+          <text class="strong-text">{{item.count}}次</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{viewMode === 'shape'}}" class="section">
+      <view class="section-head compact"><text class="section-title">五区结构 TOP 8</text><view class="info-button" data-info="zone" bindtap="showInfo">i</view></view>
+      <view class="bar-chart card">
+        <view wx:for="{{distributions.five_zone_distribution}}" wx:key="label" class="bar-row">
+          <text class="bar-label">{{item.label}}</text>
+          <view class="bar-track"><view class="bar-fill five-zone" style="width: {{item.percent}}%;"></view></view>
+          <text class="bar-value">{{item.count}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{loading}}" class="empty">正在计算统计数据...</view>
+</view>

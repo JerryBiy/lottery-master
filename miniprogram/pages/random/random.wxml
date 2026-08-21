@@ -1,0 +1,191 @@
+<view class="page">
+  <view class="mode-tabs">
+    <view class="{{mode === 'quick' ? 'active' : ''}}" data-mode="quick" bindtap="setMode">快速随机</view>
+    <view class="{{mode === 'custom' ? 'active' : ''}}" data-mode="custom" bindtap="setMode">自定义随机</view>
+  </view>
+
+  <view class="control card">
+    <view>
+      <text class="control-title">生成注数</text>
+      <text class="muted">{{mode === 'quick' ? '所有合规组合等概率抽取' : '从满足所选条件的组合中随机抽取'}}</text>
+    </view>
+    <view class="stepper">
+      <button bindtap="decrease">−</button>
+      <text>{{count}}</text>
+      <button bindtap="increase">＋</button>
+    </view>
+  </view>
+
+  <block wx:if="{{mode === 'custom'}}">
+    <view class="custom-head">
+      <view>
+        <text class="section-title">号码条件</text>
+        <text class="muted">先选择操作，再点击号码</text>
+      </view>
+      <text class="reset" bindtap="resetConstraints">重置条件</text>
+    </view>
+
+    <view class="custom-section-tabs">
+      <view class="{{customSection === 'numbers' ? 'active' : ''}}" data-section="numbers" bindtap="setCustomSection">号码选择</view>
+      <view class="{{customSection === 'rules' ? 'active' : ''}}" data-section="rules" bindtap="setCustomSection">结构条件</view>
+    </view>
+
+    <block wx:if="{{customSection === 'numbers'}}">
+      <view class="action-tabs">
+        <view class="{{selectionAction === 'required' ? 'active required' : ''}}" data-action="required" bindtap="setSelectionAction">必选号码</view>
+        <view class="{{selectionAction === 'excluded' ? 'active excluded' : ''}}" data-action="excluded" bindtap="setSelectionAction">排除号码</view>
+      </view>
+
+    <view class="number-panel card">
+      <view class="panel-title-row">
+        <text class="panel-title">前区</text>
+        <text class="selection-count">必选 {{frontRequired.length}} · 排除 {{frontExcluded.length}}</text>
+      </view>
+      <view class="number-grid front-grid">
+        <view
+          wx:for="{{frontNumbers}}"
+          wx:key="value"
+          class="number-choice front {{item.state}}"
+          data-pool="front"
+          data-number="{{item.value}}"
+          bindtap="tapNumber"
+        >{{item.text}}</view>
+      </view>
+      <view class="panel-title-row back-title">
+        <text class="panel-title">后区</text>
+        <text class="selection-count">必选 {{backRequired.length}} · 排除 {{backExcluded.length}}</text>
+      </view>
+      <view class="number-grid back-grid">
+        <view
+          wx:for="{{backNumbers}}"
+          wx:key="value"
+          class="number-choice back {{item.state}}"
+          data-pool="back"
+          data-number="{{item.value}}"
+          bindtap="tapNumber"
+        >{{item.text}}</view>
+      </view>
+      <view class="legend">
+        <view class="legend-item"><view class="legend-dot required"></view><text>必选</text></view>
+        <view class="legend-item"><view class="legend-dot excluded"></view><text>排除</text></view>
+      </view>
+    </view>
+    </block>
+
+    <view wx:if="{{customSection === 'rules'}}" class="rules card">
+      <text class="section-title">组合结构</text>
+
+      <view class="rule-row">
+        <text class="rule-label">前区奇数个数</text>
+        <scroll-view scroll-x class="chip-scroll">
+          <view class="chip-line">
+            <view
+              wx:for="{{countOptions.frontOddCount}}"
+              wx:key="*this"
+              class="rule-chip {{constraints.frontOddCount === item ? 'active' : ''}}"
+              data-field="frontOddCount"
+              data-value="{{item}}"
+              bindtap="setRule"
+            >{{item === 'any' ? '不限' : item + '个'}}</view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="rule-row">
+        <text class="rule-label">前区大号个数 <text class="rule-note">18–35</text></text>
+        <scroll-view scroll-x class="chip-scroll">
+          <view class="chip-line">
+            <view
+              wx:for="{{countOptions.frontBigCount}}"
+              wx:key="*this"
+              class="rule-chip {{constraints.frontBigCount === item ? 'active' : ''}}"
+              data-field="frontBigCount"
+              data-value="{{item}}"
+              bindtap="setRule"
+            >{{item === 'any' ? '不限' : item + '个'}}</view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="rule-row">
+        <text class="rule-label">前区和值</text>
+        <view class="range-inputs">
+          <input type="number" value="{{constraints.frontSumMin}}" data-field="frontSumMin" bindinput="inputSum" />
+          <text>至</text>
+          <input type="number" value="{{constraints.frontSumMax}}" data-field="frontSumMax" bindinput="inputSum" />
+        </view>
+      </view>
+
+      <view class="rule-row">
+        <text class="rule-label">连号</text>
+        <view class="inline-options">
+          <view class="rule-chip {{constraints.consecutive === 'any' ? 'active' : ''}}" data-field="consecutive" data-value="any" bindtap="setRule">不限</view>
+          <view class="rule-chip {{constraints.consecutive === 'require' ? 'active' : ''}}" data-field="consecutive" data-value="require" bindtap="setRule">至少一组</view>
+          <view class="rule-chip {{constraints.consecutive === 'avoid' ? 'active' : ''}}" data-field="consecutive" data-value="avoid" bindtap="setRule">不要连号</view>
+        </view>
+      </view>
+
+      <view class="rule-row">
+        <text class="rule-label">三区分布</text>
+        <view class="inline-options">
+          <view class="rule-chip {{constraints.zoneMode === 'any' ? 'active' : ''}}" data-field="zoneMode" data-value="any" bindtap="setRule">不限</view>
+          <view class="rule-chip {{constraints.zoneMode === 'cover' ? 'active' : ''}}" data-field="zoneMode" data-value="cover" bindtap="setRule">三区都有</view>
+          <view class="rule-chip {{constraints.zoneMode === 'max2' ? 'active' : ''}}" data-field="zoneMode" data-value="max2" bindtap="setRule">每区最多2个</view>
+        </view>
+      </view>
+
+      <view class="rule-row">
+        <text class="rule-label">后区奇数个数</text>
+        <view class="inline-options">
+          <view
+            wx:for="{{countOptions.backOddCount}}"
+            wx:key="*this"
+            class="rule-chip {{constraints.backOddCount === item ? 'active' : ''}}"
+            data-field="backOddCount"
+            data-value="{{item}}"
+            bindtap="setRule"
+          >{{item === 'any' ? '不限' : item + '个'}}</view>
+        </view>
+      </view>
+
+      <view class="switch-row">
+        <view>
+          <text class="rule-label">前区尾数不重复</text>
+          <text class="rule-note block">例如 03 和 13 不会同时出现</text>
+        </view>
+        <switch color="#192333" checked="{{constraints.uniqueTails}}" bindchange="toggleUniqueTails" />
+      </view>
+    </view>
+  </block>
+
+  <button class="button-primary generate" disabled="{{loading}}" bindtap="generate">
+    {{loading ? '正在生成…' : (mode === 'quick' ? '重新随机' : '按条件生成')}}
+  </button>
+  <view wx:if="{{candidateText}}" class="candidate-note">{{candidateText}}</view>
+
+  <view wx:if="{{!firstResultReady}}" class="ticket-placeholder card">
+    <view wx:for="{{placeholderRows}}" wx:key="*this" class="placeholder-row">
+      <view class="placeholder-index"></view>
+      <view class="placeholder-balls"></view>
+    </view>
+  </view>
+
+  <view wx:else class="ticket-list card">
+    <view wx:for="{{tickets}}" wx:key="id" class="ticket-row">
+      <text class="ticket-index">{{item.id}}</text>
+      <view class="balls">
+        <view wx:for="{{item.front}}" wx:for-item="number" wx:key="*this" class="ball ball-front">
+          {{number < 10 ? '0' + number : number}}
+        </view>
+        <view wx:for="{{item.back}}" wx:for-item="number" wx:key="*this" class="ball ball-back">
+          {{number < 10 ? '0' + number : number}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <button class="button-secondary save" disabled="{{favoriteSaved}}" bindtap="save">
+    {{favoriteSaved ? '本组已收藏' : '收藏本组号码'}}
+  </button>
+  <view class="notice">{{statement}}</view>
+</view>

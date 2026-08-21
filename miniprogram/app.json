@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/ruler/ruler",
+    "pages/history/history",
+    "pages/insight/insight",
+    "pages/lab/lab",
+    "pages/profile/profile",
+    "pages/model-generate/model-generate",
+    "pages/random/random"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "大乐透数据观察",
+    "backgroundColor": "#f4f6f8",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#7a8495",
+    "selectedColor": "#1769aa",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/ruler/ruler",
+        "text": "画规"
+      },
+      {
+        "pagePath": "pages/insight/insight",
+        "text": "统计"
+      },
+      {
+        "pagePath": "pages/lab/lab",
+        "text": "实验"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

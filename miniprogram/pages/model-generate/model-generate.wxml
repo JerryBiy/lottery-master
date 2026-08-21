@@ -1,0 +1,78 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="skeleton"></view>
+
+  <block wx:elif="{{overview}}">
+    <view class="page-head">
+      <view>
+        <text class="page-title">快速模型生成</text>
+        <text class="page-subtitle">只需三步 · 数据更新至第 {{overview.latest_issue}} 期</text>
+      </view>
+      <view class="info-button" bindtap="showInfo">i</view>
+    </view>
+
+    <view class="setup card">
+      <view class="setup-section">
+        <view class="setup-heading">
+          <text class="step-number">1</text>
+          <view><text class="setup-title">选择模型</text><text class="setup-hint">默认使用系统参考模型</text></view>
+        </view>
+        <picker mode="selector" range="{{models}}" range-key="label" value="{{modelIndex}}" bindchange="selectModel">
+          <view class="model-picker">
+            <view><text>{{models[modelIndex].label}}</text><text>{{models[modelIndex].description}}</text></view>
+            <text>更换 〉</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="setup-section">
+        <view class="setup-heading">
+          <text class="step-number">2</text>
+          <view><text class="setup-title">选择学习期数</text><text class="setup-hint">短窗口关注近期，长窗口更稳定</text></view>
+        </view>
+        <view class="window-grid">
+          <view wx:for="{{windows}}" wx:key="value" class="window-option {{item.selected ? 'selected' : ''}}" data-index="{{index}}" bindtap="selectWindow">{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="setup-section last">
+        <view class="setup-heading">
+          <text class="step-number">3</text>
+          <view><text class="setup-title">选择生成注数</text><text class="setup-hint">每次最多生成10注</text></view>
+        </view>
+        <view class="ticket-picker">
+          <view bindtap="decreaseTickets">−</view>
+          <text>{{ticketCount}}</text>
+          <view bindtap="increaseTickets">＋</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="standard-note"><text>标准方案</text><text>全部特征 · 标准复杂度 · 综合均衡</text></view>
+    <view class="generate-action {{job && (job.status === 'queued' || job.status === 'running') ? 'disabled' : ''}}" bindtap="generate">
+      {{job && (job.status === 'queued' || job.status === 'running') ? '正在训练与生成' : '生成模型组合'}}
+    </view>
+
+    <view wx:if="{{job && job.status !== 'completed'}}" class="job-progress">
+      <view class="progress-track"><view class="progress-fill" style="width: {{job.progress}}%;"></view></view>
+      <text>{{job.message}}</text>
+    </view>
+
+    <view wx:if="{{result}}" class="result-section">
+      <view class="result-head">
+        <view><text>本次生成结果</text><text>{{result.model_label}} · {{result.train_window ? '近' + result.train_window + '期' : '全部历史'}} · {{result.trainingModeLabel}} {{result.elapsedText}}</text></view>
+        <text>已保存</text>
+      </view>
+      <view class="ticket-list card">
+        <view wx:for="{{result.tickets}}" wx:key="front" class="ticket-row">
+          <text class="ticket-index">{{index + 1}}</text>
+          <view class="balls">
+            <view wx:for="{{item.frontNumbers}}" wx:for-item="number" wx:key="*this" class="ball ball-front">{{number}}</view>
+            <view wx:for="{{item.backNumbers}}" wx:for-item="number" wx:key="*this" class="ball ball-back">{{number}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="favorite-action {{favoriteSaved ? 'saved' : ''}}" bindtap="saveFavorite">{{favoriteSaved ? '本组已收藏' : '收藏本组组合'}}</view>
+      <view class="notice">结果已保存。下一期开奖更新后，系统会自动记录真实对比。</view>
+    </view>
+  </block>
+</view>

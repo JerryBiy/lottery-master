@@ -1,0 +1,309 @@
+.latest {
+  padding: 30rpx;
+  background: #192333;
+  color: #ffffff;
+}
+
+.latest-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.eyebrow,
+.latest-date {
+  display: block;
+}
+
+.eyebrow {
+  font-size: 34rpx;
+  font-weight: 650;
+}
+
+.latest-date {
+  margin-top: 8rpx;
+  color: #bfc8d5;
+  font-size: 24rpx;
+}
+
+.source {
+  padding: 8rpx 12rpx;
+  color: #cbd4df;
+  border: 1rpx solid #485466;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+}
+
+.latest-balls {
+  margin: 34rpx 0 28rpx;
+}
+
+.latest-stats {
+  display: flex;
+  gap: 28rpx;
+  color: #cbd4df;
+  font-size: 24rpx;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10rpx;
+  margin-top: 20rpx;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  padding: 20rpx 6rpx;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.action-pressed {
+  background: #eef3f7;
+  transform: scale(0.98);
+}
+
+.action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin: 0 auto 14rpx;
+  border-radius: 50%;
+  background: #d94343;
+  color: #ffffff;
+  font-size: 26rpx;
+}
+
+.action-icon.blue {
+  background: #1769aa;
+}
+
+.action-icon.green {
+  background: #17845f;
+}
+
+.action-icon.amber {
+  background: #b5650b;
+}
+
+.action-title,
+.action-desc {
+  display: block;
+}
+
+.home-view-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 24rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.home-view-tabs view {
+  position: relative;
+  min-height: 66rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  line-height: 66rpx;
+  text-align: center;
+}
+
+.home-view-tabs view.active {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.home-view-tabs view.active::after {
+  position: absolute;
+  right: 34%;
+  bottom: -1rpx;
+  left: 34%;
+  height: 5rpx;
+  border-radius: 3rpx;
+  background: #1769aa;
+  content: "";
+}
+
+.home-view-section {
+  margin-top: 18rpx;
+}
+
+.action-title {
+  color: var(--ink);
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.action-desc {
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: 21rpx;
+}
+
+.quick {
+  padding: 4rpx 24rpx;
+}
+
+.quick-row {
+  display: grid;
+  grid-template-columns: 150rpx minmax(0, 1fr);
+  min-height: 96rpx;
+  align-items: center;
+  gap: 16rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+
+.quick-row.last {
+  border-bottom: 0;
+}
+
+.quick-label {
+  color: var(--muted);
+  font-size: 25rpx;
+}
+
+.quick-value {
+  font-size: 32rpx;
+  font-weight: 650;
+}
+
+.sum-reading {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.sum-level {
+  padding: 5rpx 9rpx;
+  border-radius: 6rpx;
+  font-size: 20rpx;
+}
+
+.quick-value.low,
+.sum-level.low {
+  color: #1769aa;
+}
+
+.sum-level.low {
+  background: #e8f2fa;
+}
+
+.quick-value.normal,
+.sum-level.normal {
+  color: #17845f;
+}
+
+.sum-level.normal {
+  background: #e8f5ef;
+}
+
+.quick-value.high,
+.sum-level.high {
+  color: #c13f36;
+}
+
+.sum-level.high {
+  background: #faecea;
+}
+
+.quick-content {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+
+.mini-balls {
+  display: flex;
+  min-width: 0;
+  justify-content: flex-end;
+  gap: 8rpx;
+}
+
+.mini-ball {
+  display: flex;
+  width: 46rpx;
+  height: 46rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 21rpx;
+  flex: 0 0 46rpx;
+  line-height: 1;
+}
+
+.mini-ball text {
+  display: block;
+  line-height: 1;
+}
+
+.mini-ball.red {
+  background: var(--red);
+}
+
+.mini-ball.blue {
+  background: var(--blue);
+}
+
+.section-link {
+  color: var(--blue);
+  font-size: 24rpx;
+}
+
+.recent {
+  padding: 0 24rpx;
+}
+
+.recent-row {
+  display: grid;
+  grid-template-columns: 132rpx 1fr 100rpx;
+  align-items: center;
+  min-height: 94rpx;
+  border-bottom: 1rpx solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.recent-row:last-child {
+  border-bottom: 0;
+}
+
+.recent-issue text {
+  display: block;
+}
+
+.recent-issue .muted {
+  margin-top: 3rpx;
+  font-size: 20rpx;
+}
+
+.recent-front {
+  color: #b92e2e;
+  font-weight: 600;
+}
+
+.recent-back {
+  color: var(--blue);
+  font-weight: 600;
+  text-align: right;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 40rpx 28rpx;
+}
+
+.error-title {
+  font-size: 32rpx;
+  font-weight: 650;
+}

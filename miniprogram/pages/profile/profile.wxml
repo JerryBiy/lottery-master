@@ -1,0 +1,89 @@
+<view class="page">
+  <view class="identity card">
+    <view class="logo">数</view>
+    <view>
+      <text class="product-name">{{about ? about.product_name : '大乐透数据观察'}}</text>
+      <text class="muted">{{about ? about.positioning : '历史数据分析与概率教育工具'}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view><text class="section-title">号码收藏</text><text class="section-caption">按生成批次收起，点击一组查看详情</text></view>
+      <text class="section-meta">{{favorites.length}} 组</text>
+    </view>
+
+    <view wx:if="{{visibleFavorites.length}}" class="favorite-list">
+      <view wx:for="{{visibleFavorites}}" wx:key="id" wx:for-item="favorite" class="favorite card">
+        <view class="favorite-summary" data-id="{{favorite.id}}" bindtap="toggleFavorite">
+          <view class="summary-main">
+            <view class="summary-line">
+              <text class="source-badge {{favorite.sourceClass}}">{{favorite.sourceLabel}}</text>
+              <text class="favorite-date">{{favorite.createdAt}}</text>
+            </view>
+            <view class="summary-line lower">
+              <text>{{favorite.tickets.length}} 注</text>
+              <text class="status-text {{favorite.hasPrize ? 'winner' : favorite.status}}">{{favorite.statusLabel}}</text>
+            </view>
+          </view>
+          <text class="chevron">{{favorite.expanded ? '⌃' : '⌄'}}</text>
+        </view>
+
+        <view wx:if="{{favorite.expanded}}" class="favorite-detail">
+          <view wx:if="{{favorite.evaluated}}" class="draw-result">
+            <view class="draw-result-head">
+              <view><text>第 {{favorite.targetIssue}} 期开奖</text><text>{{favorite.targetDate}}</text></view>
+              <text class="{{favorite.hasPrize ? 'winner' : ''}}">{{favorite.bestLabel}}</text>
+            </view>
+            <view class="draw-balls">
+              <text wx:for="{{favorite.targetFront}}" wx:key="*this" class="draw-ball front">{{item}}</text>
+              <text wx:for="{{favorite.targetBack}}" wx:key="*this" class="draw-ball back">{{item}}</text>
+            </view>
+          </view>
+          <view wx:elif="{{favorite.status === 'pending'}}" class="pending-result">收藏于第 {{favorite.generatedAfterIssue}} 期开奖后，等待下一期开奖。</view>
+          <view wx:else class="pending-result">这条旧收藏没有记录生成期号，无法自动确定对应开奖。</view>
+
+          <view class="saved-tickets">
+            <view wx:for="{{favorite.tickets}}" wx:key="id" wx:for-item="ticket" class="saved-ticket">
+              <view class="ticket-meta">
+                <text>{{index + 1}}</text>
+                <text wx:if="{{favorite.evaluated}}">前{{ticket.frontHits}} 后{{ticket.backHits}}</text>
+                <text wx:if="{{ticket.prizeLabel}}" class="prize-badge">{{ticket.prizeLabel}}</text>
+              </view>
+              <view class="saved-balls">
+                <text wx:for="{{ticket.frontBalls}}" wx:key="text" wx:for-item="number" class="saved-ball front {{number.hit ? 'hit' : ''}}">{{number.text}}</text>
+                <text wx:for="{{ticket.backBalls}}" wx:key="text" wx:for-item="number" class="saved-ball back {{number.hit ? 'hit' : ''}}">{{number.text}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view wx:if="{{favorite.isModel}}" class="model-detail-toggle" data-id="{{favorite.id}}" catchtap="toggleDetails">
+            <text>模型详情</text><text>{{favorite.detailsOpen ? '收起' : '查看参数'}} 〉</text>
+          </view>
+          <view wx:if="{{favorite.detailsOpen}}" class="model-details">
+            <view wx:for="{{favorite.detailsRows}}" wx:key="label"><text>{{item.label}}</text><text>{{item.value}}</text></view>
+          </view>
+          <view class="delete-action" data-id="{{favorite.id}}" catchtap="removeFavorite">删除这组收藏</view>
+        </view>
+      </view>
+      <view wx:if="{{visibleFavorites.length < favorites.length}}" class="show-more" bindtap="showMore">再显示 {{favorites.length - visibleFavorites.length > 8 ? 8 : favorites.length - visibleFavorites.length}} 组</view>
+    </view>
+    <view wx:else class="card empty">{{evaluating ? '正在读取收藏...' : '还没有收藏号码'}}</view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">产品边界</text>
+    <view class="boundary card">
+      <block wx:if="{{about}}">
+        <view wx:for="{{about.service_boundary}}" wx:key="*this" class="boundary-row"><text class="check">✓</text><text>{{item}}</text></view>
+      </block>
+      <block wx:else>
+        <view class="boundary-row"><text class="check">✓</text><text>不销售、代购或合买任何彩票</text></view>
+        <view class="boundary-row"><text class="check">✓</text><text>不承诺中奖，不提供所谓必中号码</text></view>
+        <view class="boundary-row"><text class="check">✓</text><text>所有统计仅用于历史观察和概率教育</text></view>
+      </block>
+    </view>
+  </view>
+
+  <view class="notice section">数据来源于公开开奖信息。每期开奖相互独立，任何历史频次、遗漏或模型结果都不能保证未来结果。请量力而行，理性购彩。</view>
+</view>

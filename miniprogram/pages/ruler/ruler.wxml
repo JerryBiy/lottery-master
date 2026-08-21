@@ -1,0 +1,80 @@
+<view class="ruler-page">
+  <view class="ruler-toolbar">
+    <view class="period-label">期数</view>
+    <view class="period-tabs">
+      <view
+        wx:for="{{periodOptions}}"
+        wx:key="*this"
+        class="{{period === item ? 'active' : ''}}"
+        data-period="{{item}}"
+        bindtap="selectPeriod"
+      >{{item}}期</view>
+    </view>
+    <view class="info-button" bindtap="showInfo">i</view>
+  </view>
+
+  <view class="line-status">
+    <view>
+      <text class="status-title">{{activePointCount ? '正在绘制第 ' + (lineCount + 1) + ' 条线' : (lineCount ? '已完成 ' + lineCount + ' 条线' : '点击号码开始连线')}}</text>
+      <text class="status-meta">{{activePointCount ? activePointCount + ' 个节点' : '红色前区 · 蓝色后区'}}</text>
+    </view>
+    <view class="color-indicator" style="background: {{activeColor}};"></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="matrix-skeleton"></view>
+
+  <view wx:else class="draw-matrix">
+    <view class="matrix-header matrix-grid">
+      <text>期号</text>
+      <text>和值</text>
+      <text class="front-head">前区号码</text>
+      <text class="divider-head"></text>
+      <text class="back-head">后区</text>
+    </view>
+
+    <view class="matrix-body">
+      <canvas type="2d" id="ruleCanvas" class="rule-canvas"></canvas>
+      <view wx:for="{{rows}}" wx:key="issue" wx:for-item="row" class="matrix-row matrix-grid">
+        <view class="issue-cell">
+          <text>{{row.issue}}</text>
+          <text>{{row.shortDate}}</text>
+        </view>
+        <text class="sum-cell">{{row.front_sum}}</text>
+        <view
+          wx:for="{{row.frontCells}}"
+          wx:key="key"
+          wx:for-item="cell"
+          id="{{cell.key}}"
+          class="number-cell front {{cell.selected ? 'selected' : ''}}"
+          style="{{cell.selected ? 'border-color:' + cell.color + ';box-shadow:0 0 0 4rpx ' + cell.color + '33;' : ''}}"
+          data-row="{{row.rowIndex}}"
+          data-pool="front"
+          data-index="{{index}}"
+          data-key="{{cell.key}}"
+          bindtap="selectPoint"
+        ><text style="{{cell.selected ? 'background:' + cell.color + ';color:#ffffff;' : ''}}">{{cell.text}}</text></view>
+        <view class="pool-divider"></view>
+        <view
+          wx:for="{{row.backCells}}"
+          wx:key="key"
+          wx:for-item="cell"
+          id="{{cell.key}}"
+          class="number-cell back {{cell.selected ? 'selected' : ''}}"
+          style="{{cell.selected ? 'border-color:' + cell.color + ';box-shadow:0 0 0 4rpx ' + cell.color + '33;' : ''}}"
+          data-row="{{row.rowIndex}}"
+          data-pool="back"
+          data-index="{{index}}"
+          data-key="{{cell.key}}"
+          bindtap="selectPoint"
+        ><text style="{{cell.selected ? 'background:' + cell.color + ';color:#ffffff;' : ''}}">{{cell.text}}</text></view>
+      </view>
+      <view wx:if="{{!rows.length}}" class="empty">暂无开奖数据</view>
+    </view>
+  </view>
+
+  <view class="ruler-actions">
+    <button class="tool-button" disabled="{{!activePointCount}}" bindtap="undoPoint">撤销</button>
+    <button class="tool-button finish" disabled="{{activePointCount < 2}}" bindtap="finishLine">完成本线</button>
+    <button class="tool-button danger" disabled="{{!activePointCount && !lineCount}}" bindtap="clearLines">清除</button>
+  </view>
+</view>

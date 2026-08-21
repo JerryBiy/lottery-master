@@ -1,0 +1,132 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="skeleton"></view>
+
+  <view wx:elif="{{error}}" class="card error-state">
+    <text class="error-title">暂时无法读取数据</text>
+    <text class="muted">{{error}}</text>
+    <button class="button-secondary" bindtap="loadHome">重新加载</button>
+  </view>
+
+  <block wx:else>
+    <view class="latest card">
+      <view class="latest-head">
+        <view>
+          <text class="eyebrow">第 {{home.latest.issue}} 期</text>
+          <text class="latest-date">{{home.latest.date}} · {{home.latest.weekday}}</text>
+        </view>
+        <text class="source">官方数据</text>
+      </view>
+      <view class="balls latest-balls">
+        <view wx:for="{{home.latest.front}}" wx:key="*this" class="ball ball-front">
+          {{item < 10 ? '0' + item : item}}
+        </view>
+        <view wx:for="{{home.latest.back}}" wx:key="*this" class="ball ball-back">
+          {{item < 10 ? '0' + item : item}}
+        </view>
+      </view>
+      <view class="latest-stats">
+        <text>和值 {{home.latest.front_sum}}</text>
+        <text>跨度 {{home.latest.front_span}}</text>
+        <text>{{home.latest.odd_count}}奇{{5 - home.latest.odd_count}}偶</text>
+      </view>
+    </view>
+
+    <view class="action-grid">
+      <view class="action card" hover-class="action-pressed" bindtap="openHistory">
+        <text class="action-icon">历</text>
+        <text class="action-title">历史开奖</text>
+        <text class="action-desc">{{home.draw_count}} 期数据</text>
+      </view>
+      <view class="action card" hover-class="action-pressed" bindtap="openInsight">
+        <text class="action-icon blue">统</text>
+        <text class="action-title">统计观察</text>
+        <text class="action-desc">频次与分布</text>
+      </view>
+      <view class="action card" hover-class="action-pressed" bindtap="openRandom">
+        <text class="action-icon green">随</text>
+        <text class="action-title">随机号码</text>
+        <text class="action-desc">等概率生成</text>
+      </view>
+      <view class="action card" hover-class="action-pressed" bindtap="openModelGenerate">
+        <text class="action-icon amber">模</text>
+        <text class="action-title">模型生成</text>
+        <text class="action-desc">快速设置</text>
+      </view>
+    </view>
+
+    <view class="home-view-tabs">
+      <view class="{{homeView === 'overview' ? 'active' : ''}}" data-view="overview" bindtap="selectHomeView">数据概览</view>
+      <view class="{{homeView === 'recent' ? 'active' : ''}}" data-view="recent" bindtap="selectHomeView">最近开奖</view>
+    </view>
+
+    <view wx:if="{{homeView === 'overview'}}" class="section home-view-section">
+      <view class="section-head">
+        <text class="section-title">近 {{home.quick_stats.window}} 期观察</text>
+        <text class="section-meta">历史频次</text>
+      </view>
+      <view class="quick card">
+        <view class="quick-row">
+          <text class="quick-label">前区高频</text>
+          <view class="quick-content">
+            <view class="mini-balls">
+              <view wx:for="{{home.quick_stats.front_hot}}" wx:key="number" class="mini-ball red">
+                <text>{{item.number_text}}</text>
+              </view>
+            </view>
+            <view class="info-button" data-info="frontHot" bindtap="showInfo">i</view>
+          </view>
+        </view>
+        <view class="quick-row">
+          <text class="quick-label">后区高频</text>
+          <view class="quick-content">
+            <view class="mini-balls">
+              <view wx:for="{{home.quick_stats.back_hot}}" wx:key="number" class="mini-ball blue">
+                <text>{{item.number_text}}</text>
+              </view>
+            </view>
+            <view class="info-button" data-info="backHot" bindtap="showInfo">i</view>
+          </view>
+        </view>
+        <view class="quick-row">
+          <text class="quick-label">前区平均和值</text>
+          <view class="quick-content">
+            <view class="sum-reading">
+              <text class="quick-value {{home.quick_stats.front_sum_level}}">{{home.quick_stats.average_front_sum}}</text>
+              <text class="sum-level {{home.quick_stats.front_sum_level}}">{{home.quick_stats.front_sum_level_label}}</text>
+            </view>
+            <view class="info-button" data-info="averageSum" bindtap="showInfo">i</view>
+          </view>
+        </view>
+        <view class="quick-row last">
+          <text class="quick-label">后区平均和值</text>
+          <view class="quick-content">
+            <view class="sum-reading">
+              <text class="quick-value {{home.quick_stats.back_sum_level}}">{{home.quick_stats.average_back_sum}}</text>
+              <text class="sum-level {{home.quick_stats.back_sum_level}}">{{home.quick_stats.back_sum_level_label}}</text>
+            </view>
+            <view class="info-button" data-info="averageBackSum" bindtap="showInfo">i</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{homeView === 'recent'}}" class="section home-view-section">
+      <view class="section-head">
+        <text class="section-title">最近开奖</text>
+        <text class="section-link" bindtap="openHistory">查看全部</text>
+      </view>
+      <view class="recent card">
+        <view wx:for="{{home.recent}}" wx:key="issue" class="recent-row">
+          <view class="recent-issue">
+            <text>{{item.issue}}</text>
+            <text class="muted">{{item.date}}</text>
+          </view>
+          <text class="recent-front">{{item.front_text}}</text>
+          <text class="recent-back">{{item.back_text}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="notice section">{{home.disclaimer}}</view>
+  </block>
+</view>

@@ -1,0 +1,45 @@
+<view class="page history-page">
+  <view class="search card">
+    <text class="search-icon">期号</text>
+    <input
+      value="{{query}}"
+      bindinput="onSearchInput"
+      placeholder="输入期号，例如 26074"
+      confirm-type="search"
+    />
+    <text wx:if="{{query}}" class="clear" bindtap="clearSearch">清除</text>
+  </view>
+
+  <view class="result-meta">
+    <text>共 {{total}} 期</text>
+    <text>红色前区 · 蓝色后区</text>
+  </view>
+
+  <view class="draw-list card">
+    <view wx:for="{{rows}}" wx:key="issue" class="draw-row">
+      <view class="draw-head">
+        <text class="issue">第 {{item.issue}} 期</text>
+        <text class="date">{{item.date}} · {{item.weekday}}</text>
+      </view>
+      <view class="balls">
+        <view wx:for="{{item.front}}" wx:for-item="number" wx:key="*this" class="ball ball-front">
+          {{number < 10 ? '0' + number : number}}
+        </view>
+        <view wx:for="{{item.back}}" wx:for-item="number" wx:key="*this" class="ball ball-back">
+          {{number < 10 ? '0' + number : number}}
+        </view>
+      </view>
+      <view class="draw-stats">
+        <text>和值 {{item.front_sum}}</text>
+        <text>跨度 {{item.front_span}}</text>
+        <text>{{item.odd_count}}奇{{5 - item.odd_count}}偶</text>
+      </view>
+    </view>
+    <view wx:if="{{!rows.length && !loading}}" class="empty">没有找到对应期号</view>
+  </view>
+
+  <view class="load-more">
+    <text wx:if="{{loading}}">正在加载...</text>
+    <text wx:elif="{{!hasMore && rows.length}}">已经到底了</text>
+  </view>
+</view>
